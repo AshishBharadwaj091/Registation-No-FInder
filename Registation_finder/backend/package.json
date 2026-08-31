@@ -1,0 +1,12 @@
+{
+  "name": "student-result-portal",
+  "version": "1.0.0",
+  "description": "Student Registration Search Portal",
+  "scripts": {
+    "dev": "python app.py",
+    "start": "python app.py"
+  },
+  "keywords": ["student", "search", "portal"],
+  "author": "",
+  "license": "ISC"
+}

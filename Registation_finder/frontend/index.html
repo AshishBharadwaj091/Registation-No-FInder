@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Lovely Professional University (LPU) - B.Tech Batch 2029 Student Registration Finder. Quickly find registration numbers using student names.">
+    <title>LPU Student Registration Finder | Lovely Professional University</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="lpu-logo.png">
+</head>
+<body>
+    <!-- Campus Ambient Background Layer -->
+    <div class="campus-bg-fixed" aria-hidden="true"></div>
+
+    <!-- Top University Portal Header -->
+    <header class="top-nav-header">
+        <div class="nav-container">
+            <!-- Left: Logo & Portal Title -->
+            <div class="header-brand">
+                <img src="lpu-logo.png" alt="LPU Logo" class="lpu-nav-logo" />
+                <div class="brand-text-group">
+                    <div class="brand-name-title">
+                        <span class="brand-highlight">LPU</span> Student Registration Finder
+                    </div>
+                    <div class="brand-university">Lovely Professional University</div>
+                </div>
+            </div>
+
+            <!-- Right: Academic Program & Batch Badges -->
+            <div class="header-meta-tags">
+                <div class="meta-tag">
+                    <svg class="meta-tag-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                        <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                    </svg>
+                    <span class="meta-tag-text">B.Tech</span>
+                </div>
+                <div class="meta-tag-divider" aria-hidden="true"></div>
+                <div class="meta-tag">
+                    <svg class="meta-tag-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <span class="meta-tag-text">Batch 2029</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-page-container">
+
+        <!-- Hero Title Section -->
+        <section class="hero-section">
+            <div class="university-pill-badge">
+                <svg class="pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+                <span>LOVELY PROFESSIONAL UNIVERSITY &bull; B.TECH BATCH 2029</span>
+            </div>
+
+            <h1 class="hero-main-title">
+                <span class="title-blue">LPU Student</span> <span class="title-orange">Registration Finder</span>
+            </h1>
+
+            <p class="hero-sub-title">B.Tech Batch 2029 &bull; Find Student Registration Numbers</p>
+            <p class="hero-description">Quickly find the registration number of a B.Tech student using their name.</p>
+        </section>
+
+        <!-- Search Card -->
+        <section class="search-card-wrapper" aria-label="Student Search Panel">
+            <div class="search-card-accent-bar" aria-hidden="true"></div>
+            <div class="search-card-inner">
+                <form id="searchForm" class="search-form-row" novalidate>
+                    <div class="search-input-box">
+                        <span class="search-glass-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </span>
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            class="main-search-input" 
+                            placeholder="Enter student name..." 
+                            autocomplete="off"
+                            spellcheck="false"
+                            aria-label="Student name"
+                        />
+                        <button type="button" id="clearBtn" class="clear-input-btn" aria-label="Clear search" title="Clear">
+                            &times;
+                        </button>
+                    </div>
+
+                    <button type="submit" id="searchBtn" class="search-submit-btn">
+                        <span class="btn-text">Search</span>
+                        <svg class="btn-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </button>
+                </form>
+
+                <!-- Validation Alert -->
+                <div id="validationMessage" class="search-validation-alert" role="alert" aria-live="polite">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span>Please enter a student name.</span>
+                </div>
+
+                <!-- Quick Search Suggestions -->
+                <div class="quick-search-container">
+                    <span class="quick-label">Quick Search:</span>
+                    <div class="quick-chips-group">
+                        <button type="button" class="hint-chip" data-query="Atul">Atul</button>
+                        <button type="button" class="hint-chip" data-query="Divya Rai">Divya Rai</button>
+                        <button type="button" class="hint-chip" data-query="Manu">Manu</button>
+                        <button type="button" class="hint-chip" data-query="Ashish">Ashish</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Three Information Cards (B.Tech Students, Batch 2029, Name Search) -->
+        <section class="info-widgets-grid" aria-label="Portal Highlights">
+            <div class="info-widget-card">
+                <div class="widget-icon-circle blue-icon-circle" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+                <div class="widget-details">
+                    <h3 class="widget-heading">B.Tech Students</h3>
+                    <p class="widget-sub">Student registration lookup</p>
+                </div>
+            </div>
+
+            <div class="info-widget-card">
+                <div class="widget-icon-circle orange-icon-circle" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                </div>
+                <div class="widget-details">
+                    <h3 class="widget-heading">Batch 2029</h3>
+                    <p class="widget-sub">Current B.Tech student batch</p>
+                </div>
+            </div>
+
+            <div class="info-widget-card">
+                <div class="widget-icon-circle blue-icon-circle" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </div>
+                <div class="widget-details">
+                    <h3 class="widget-heading">Name Search</h3>
+                    <p class="widget-sub">Find by first or full name</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section with 3 Visual Steps -->
+        <section class="how-it-works-section" aria-label="How It Works">
+            <div class="section-title-divider">
+                <span class="divider-line" aria-hidden="true"></span>
+                <span class="divider-dot" aria-hidden="true">&bull;</span>
+                <h2 class="divider-title">How It Works</h2>
+                <span class="divider-dot" aria-hidden="true">&bull;</span>
+                <span class="divider-line" aria-hidden="true"></span>
+            </div>
+
+            <div class="steps-flow-container">
+                <!-- Step 1 -->
+                <div class="step-card">
+                    <div class="step-badge">1</div>
+                    <div class="step-icon-box" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <h3 class="step-name">Enter Student Name</h3>
+                    <p class="step-caption">Type the student's first name or full name</p>
+                </div>
+
+                <!-- Connector Arrow 1 -->
+                <div class="step-arrow-connector" aria-hidden="true">
+                    <span class="arrow-dotted"></span>
+                    <svg class="arrow-head" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step-card">
+                    <div class="step-badge">2</div>
+                    <div class="step-icon-box" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </div>
+                    <h3 class="step-name">Click Search</h3>
+                    <p class="step-caption">Press the search button to find the student</p>
+                </div>
+
+                <!-- Connector Arrow 2 -->
+                <div class="step-arrow-connector" aria-hidden="true">
+                    <span class="arrow-dotted"></span>
+                    <svg class="arrow-head" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step-card">
+                    <div class="step-badge">3</div>
+                    <div class="step-icon-box" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                            <line x1="2" y1="10" x2="22" y2="10"></line>
+                            <circle cx="7" cy="15" r="1"></circle>
+                            <line x1="12" y1="15" x2="18" y2="15"></line>
+                        </svg>
+                    </div>
+                    <h3 class="step-name">Get Registration Number</h3>
+                    <p class="step-caption">View and copy the student's registration number</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tip Callout Box -->
+        <section class="tip-callout-box" aria-label="Search Tip">
+            <div class="tip-bulb-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="9" y1="18" x2="15" y2="18"></line>
+                    <line x1="10" y1="22" x2="14" y2="22"></line>
+                    <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                </svg>
+            </div>
+            <div class="tip-text-content">
+                <strong>Tip:</strong> You can search using the student's first name or full name.
+            </div>
+        </section>
+
+        <!-- State: Loading -->
+        <section id="loadingState" class="state-container loading-container hidden" aria-live="polite">
+            <div class="spinner"></div>
+            <h2 class="state-title">Searching Student Records...</h2>
+            <p class="state-desc">Querying Google Sheets for matching student records</p>
+        </section>
+
+        <!-- State: Student Not Found -->
+        <section id="notFoundState" class="state-container not-found-container hidden" aria-live="polite">
+            <div class="state-icon not-found-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    <line x1="8" y1="11" x2="14" y2="11"></line>
+                </svg>
+            </div>
+            <h2 class="state-title">Student not found</h2>
+            <p class="state-desc">No student record matched "<strong id="notFoundQueryText"></strong>". Please check the spelling and try again.</p>
+        </section>
+
+        <!-- State: Error / Server Down -->
+        <section id="errorState" class="state-container error-container hidden" role="alert">
+            <div class="state-icon error-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+            </div>
+            <h2 class="state-title">Server Unavailable</h2>
+            <p class="state-desc" id="errorMessageText">Unable to connect to Flask API server. Make sure `python app.py` is running on port 5000.</p>
+            <button type="button" id="retryBtn" class="action-btn retry-btn">Retry Search</button>
+        </section>
+
+        <!-- Results Section (Supports Single & Multiple Cards) -->
+        <section id="resultsSection" class="results-section hidden" aria-label="Student Search Results">
+            <!-- Results Header Row -->
+            <div class="results-heading-row">
+                <div class="results-title-group">
+                    <div class="results-header-check-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 11 12 14 22 4"></polyline>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                        </svg>
+                    </div>
+                    <h2 class="results-main-heading">Search Results</h2>
+                    <span class="results-count-pill" id="resultsCountPill">0 Results</span>
+                </div>
+
+                <button type="button" id="newSearchTopBtn" class="new-search-link-btn" title="Start a new search">
+                    &larr; New Search
+                </button>
+            </div>
+
+            <!-- Dynamic Student Cards Container -->
+            <div id="studentsCardsList" class="students-cards-list"></div>
+
+            <!-- Footnote below cards -->
+            <p class="results-bottom-footnote">Showing all matching students.</p>
+        </section>
+
+    </div><!-- End .main-page-container -->
+
+    <!-- Professional Dark-Blue University Footer -->
+    <footer class="university-footer">
+        <div class="footer-accent-bar" aria-hidden="true"></div>
+        <div class="footer-content-container">
+            <div class="footer-main-row">
+                <!-- Left: LPU Brand Details -->
+                <div class="footer-brand-side">
+                    <div class="footer-logo-box">
+                        <img src="lpu-logo.png" alt="LPU Emblem" class="footer-lpu-logo" />
+                    </div>
+                    <div class="footer-brand-info">
+                        <h4 class="footer-brand-title">LPU Student Registration Finder</h4>
+                        <p class="footer-subtext">Lovely Professional University &bull; B.Tech Batch 2029</p>
+                        <p class="footer-tagline">Student Name &rarr; Registration Number</p>
+                    </div>
+                </div>
+
+                <!-- Right: Trust & Connection Badges -->
+                <div class="footer-security-side">
+                    <div class="security-shield-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                    </div>
+                    <div class="security-details">
+                        <div class="security-title">Secure &bull; Reliable &bull; Trusted</div>
+                        <div class="security-api-note">Connected to Google Sheets API</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Copyright Line -->
+            <div class="footer-bottom-line">
+                <p>&copy; 2026 LPU Student Registration Finder. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Script -->
+    <script src="script.js"></script>
+</body>
+</html>

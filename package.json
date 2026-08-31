@@ -1,0 +1,12 @@
+{
+  "name": "student-result-portal",
+  "version": "1.0.0",
+  "description": "Student Registration Search Portal",
+  "scripts": {
+    "dev": "cd student-result-portal/backend && .\\venv\\Scripts\\python.exe app.py",
+    "start": "cd student-result-portal/backend && .\\venv\\Scripts\\python.exe app.py"
+  },
+  "keywords": ["student", "search", "portal"],
+  "author": "",
+  "license": "ISC"
+}
