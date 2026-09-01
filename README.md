@@ -7,32 +7,31 @@ A modern, responsive web application for finding student registration numbers fr
 
 ---
 
-## 📁 Project Structure
+## 📁 Clean & Organized Project Structure
 
 ```text
 Registation-No-FInder/
 ├── api/
 │   └── index.py                # Vercel Serverless Function entrypoint
-├── vercel.json                 # Vercel routing, rewrites & CDN configuration
-├── wsgi.py                     # Production WSGI entry point (Gunicorn)
+├── backend/
+│   ├── app.py                  # Core Flask REST API, Google Sheets client & caching
+│   ├── requirements.txt        # Backend dependencies
+│   └── .env.example            # Environment variables template
+├── public/                     # Static Frontend UI assets (HTML, CSS, JS, Images)
+│   ├── index.html              # Semantic accessible UI
+│   ├── style.css               # Styling & micro-animations
+│   ├── script.js               # REST API client & clipboard handler
+│   ├── lpu-logo.png            # LPU branding logo
+│   └── campus-bg.png           # University campus background
+├── wsgi.py                     # Production WSGI entry point (Gunicorn / Render / Local)
 ├── app.py                      # Root proxy entry point
 ├── render.yaml                 # Render Blueprint specification
+├── vercel.json                 # Vercel Serverless routing & CDN configuration
 ├── Procfile                    # PaaS process configuration
-├── requirements.txt            # Python dependencies (Flask, gspread, google-auth, etc.)
+├── requirements.txt            # Python dependencies
 ├── Dockerfile                  # Container deployment configuration
 ├── VERCEL_DEPLOYMENT.md        # Comprehensive Vercel serverless deployment guide
 ├── RENDER_DEPLOYMENT.md        # Comprehensive Render deployment guide
-├── Registation_finder/
-│   ├── frontend/
-│   │   ├── index.html          # Semantic responsive UI
-│   │   ├── style.css           # Styling & animations
-│   │   ├── script.js           # REST API client & clipboard handler
-│   │   ├── lpu-logo.png        # Branding logo
-│   │   └── campus-bg.png       # Background asset
-│   └── backend/
-│       ├── app.py              # Flask REST API, Google Sheets client & caching
-│       ├── requirements.txt    # Backend dependencies
-│       └── .env.example        # Environment variables template
 └── README.md
 ```
 
@@ -104,6 +103,6 @@ Open [http://127.0.0.1:5000](http://127.0.0.1:5000) in your browser.
 ## 📡 API Endpoints
 
 - **`GET /`**: Serves the frontend single page app.
-- **`GET /api/health`** (or `/health`): Healthcheck endpoint (`{"status": "healthy"}`).
 - **`GET /api/student?query=<student_name>`**: Searches records in the Google Sheet.
+- **`GET /api/health`**: Healthcheck endpoint (`{"status": "healthy"}`).
 - **`POST /api/refresh-cache`**: Forces a fresh fetch from Google Sheets.
