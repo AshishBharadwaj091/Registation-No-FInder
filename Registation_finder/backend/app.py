@@ -227,6 +227,7 @@ def index():
 
 
 @app.route("/api/student", methods=["GET"])
+@app.route("/student", methods=["GET"])
 def search_student():
     """
     Search student by Name from Google Sheets.
@@ -329,6 +330,7 @@ def search_student():
 
 
 @app.route("/api/refresh-cache", methods=["POST", "GET"])
+@app.route("/refresh-cache", methods=["POST", "GET"])
 def refresh_cache():
     """Manual cache refresh endpoint."""
     CACHE["data"] = None

@@ -2,6 +2,7 @@
 
 A modern, responsive web application for finding student registration numbers from a secure Google Sheet backend.
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/AshishBharadwaj091/Registation-No-FInder)
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
 
 ---
@@ -10,12 +11,16 @@ A modern, responsive web application for finding student registration numbers fr
 
 ```text
 Registation-No-FInder/
+├── api/
+│   └── index.py                # Vercel Serverless Function entrypoint
+├── vercel.json                 # Vercel routing, rewrites & CDN configuration
 ├── wsgi.py                     # Production WSGI entry point (Gunicorn)
 ├── app.py                      # Root proxy entry point
 ├── render.yaml                 # Render Blueprint specification
 ├── Procfile                    # PaaS process configuration
-├── requirements.txt            # Production Python dependencies
+├── requirements.txt            # Python dependencies (Flask, gspread, google-auth, etc.)
 ├── Dockerfile                  # Container deployment configuration
+├── VERCEL_DEPLOYMENT.md        # Comprehensive Vercel serverless deployment guide
 ├── RENDER_DEPLOYMENT.md        # Comprehensive Render deployment guide
 ├── Registation_finder/
 │   ├── frontend/
@@ -33,17 +38,29 @@ Registation-No-FInder/
 
 ---
 
-## 🚀 Cloud Deployment (Render)
+## ⚡ Deploy to Vercel (Serverless Full-Stack)
 
-Deploying to Render takes less than 2 minutes:
+1. **Push this repository to GitHub**.
+2. Go to [vercel.com/new](https://vercel.com/new) and import your repository.
+3. In **Environment Variables**, add:
+   - `SPREADSHEET_ID`: Your Google Spreadsheet ID
+   - `SHEET_NAME`: `Sheet1`
+   - `GOOGLE_CREDENTIALS_JSON`: Paste the full JSON text of your Google Service Account key
+4. Click **Deploy**!
+
+👉 For detailed Vercel CLI and dashboard instructions, see [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md).
+
+---
+
+## 🚀 Deploy to Render
 
 1. **Push this repository to GitHub**.
 2. Go to [Render Dashboard](https://dashboard.render.com) and click **New +** -> **Blueprint**.
 3. Connect your repository. Render will automatically detect `render.yaml`.
-4. Add your **Google Sheet ID** (`SPREADSHEET_ID`) and paste your Google Service Account JSON into **`GOOGLE_CREDENTIALS_JSON`**.
+4. Add your **`SPREADSHEET_ID`** and **`GOOGLE_CREDENTIALS_JSON`**.
 5. Click **Apply**!
 
-👉 For detailed manual and secret file setup instructions, see [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md).
+👉 For detailed Render instructions, see [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md).
 
 ---
 
@@ -87,6 +104,6 @@ Open [http://127.0.0.1:5000](http://127.0.0.1:5000) in your browser.
 ## 📡 API Endpoints
 
 - **`GET /`**: Serves the frontend single page app.
-- **`GET /health`**: Healthcheck endpoint for Render (`{"status": "healthy"}`).
+- **`GET /api/health`** (or `/health`): Healthcheck endpoint (`{"status": "healthy"}`).
 - **`GET /api/student?query=<student_name>`**: Searches records in the Google Sheet.
 - **`POST /api/refresh-cache`**: Forces a fresh fetch from Google Sheets.
