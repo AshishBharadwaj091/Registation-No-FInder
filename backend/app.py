@@ -87,10 +87,10 @@ def get_google_credentials():
             if (creds_str.startswith('"') and creds_str.endswith('"')) or (creds_str.startswith("'") and creds_str.endswith("'")):
                 creds_str = creds_str[1:-1].strip()
 
-            creds_data = json.loads(creds_str)
+            creds_data = json.loads(creds_str, strict=False)
             # Handle double-encoded JSON string
             if isinstance(creds_data, str):
-                creds_data = json.loads(creds_data)
+                creds_data = json.loads(creds_data, strict=False)
 
             if isinstance(creds_data, dict):
                 # Fix escaped newlines in private key if necessary
@@ -106,9 +106,9 @@ def get_google_credentials():
     if creds_b64 and str(creds_b64).strip():
         try:
             decoded = base64.b64decode(str(creds_b64).strip()).decode("utf-8")
-            creds_data = json.loads(decoded)
+            creds_data = json.loads(decoded, strict=False)
             if isinstance(creds_data, str):
-                creds_data = json.loads(creds_data)
+                creds_data = json.loads(creds_data, strict=False)
             if isinstance(creds_data, dict):
                 if "private_key" in creds_data and isinstance(creds_data["private_key"], str):
                     if "\\n" in creds_data["private_key"]:
@@ -156,7 +156,7 @@ def fetch_sheet_data():
             f"or provide a credentials file."
         )
 
-    clean_sheet_id = extract_sheet_id(SPREADSHEET_ID)
+    clean_sheet_id = extract_sheet_id(os.getenv("SPREADSHEET_ID", SPREADSHEET_ID))
     if not clean_sheet_id:
         raise ValueError("SPREADSHEET_ID is not configured in environment.")
 
@@ -167,7 +167,28 @@ def fetch_sheet_data():
     for attempt in range(3):
         try:
             spreadsheet = client.open_by_key(clean_sheet_id)
-            worksheet = spreadsheet.worksheet(SHEET_NAME)
+
+            # Smart Worksheet Tab Selection:
+            # 1. Match configured tab name (case-insensitive / stripped)
+            # 2. Automatically fallback to first tab if not found by exact name
+            clean_tab_name = str(os.getenv("SHEET_NAME", SHEET_NAME or "Sheet1")).strip("\"' \t\r\n")
+            all_worksheets = spreadsheet.worksheets()
+            worksheet = None
+
+            if clean_tab_name:
+                for ws in all_worksheets:
+                    if ws.title.strip().lower() == clean_tab_name.lower():
+                        worksheet = ws
+                        break
+
+            if not worksheet and all_worksheets:
+                # Default to first tab (worksheet 0)
+                worksheet = all_worksheets[0]
+                app.logger.info(f"Tab '{clean_tab_name}' not found. Defaulting to first tab: '{worksheet.title}'")
+
+            if not worksheet:
+                raise ValueError("No worksheets found in Google Spreadsheet.")
+
             # Read headers first
             raw_headers = worksheet.row_values(1)
             if not raw_headers:
