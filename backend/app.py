@@ -62,46 +62,68 @@ CACHE = {
 
 
 def extract_sheet_id(sheet_input):
-    """Extract clean Google Spreadsheet ID from either raw ID or full URL."""
+    """Extract clean Google Spreadsheet ID from either raw ID or full URL, stripping quotes."""
     if not sheet_input:
         return ""
+    sheet_input = str(sheet_input).strip("\"' \t\r\n")
     match = re.search(r"/spreadsheets/d/([a-zA-Z0-9-_]+)", sheet_input)
     if match:
         return match.group(1).strip()
-    return re.sub(r"\s+", "", sheet_input)
+    return re.sub(r"\s+", "", sheet_input).strip("\"'")
 
 
 def get_google_credentials():
     """
     Locate and load Google Service Account Credentials from environment variables
-    (e.g., GOOGLE_CREDENTIALS_JSON for Render/Heroku) or local credentials.json file.
+    (e.g., GOOGLE_CREDENTIALS_JSON for Vercel/Render) or local credentials.json file.
+    Handles outer quotes, escaped newlines, and base64 strings gracefully.
     """
-    # 1. Check raw JSON string from environment variable (Best for Render/Cloud)
+    # 1. Check raw JSON string from environment variable (Best for Vercel/Render/Cloud)
     creds_json = os.getenv("GOOGLE_CREDENTIALS_JSON") or os.getenv("GOOGLE_CREDENTIALS")
-    if creds_json and creds_json.strip():
+    if creds_json and str(creds_json).strip():
         try:
-            creds_data = json.loads(creds_json)
-            return Credentials.from_service_account_info(creds_data, scopes=SCOPES)
+            creds_str = str(creds_json).strip()
+            # Handle potential outer quotes if pasted with quotes
+            if (creds_str.startswith('"') and creds_str.endswith('"')) or (creds_str.startswith("'") and creds_str.endswith("'")):
+                creds_str = creds_str[1:-1].strip()
+
+            creds_data = json.loads(creds_str)
+            # Handle double-encoded JSON string
+            if isinstance(creds_data, str):
+                creds_data = json.loads(creds_data)
+
+            if isinstance(creds_data, dict):
+                # Fix escaped newlines in private key if necessary
+                if "private_key" in creds_data and isinstance(creds_data["private_key"], str):
+                    if "\\n" in creds_data["private_key"]:
+                        creds_data["private_key"] = creds_data["private_key"].replace("\\n", "\n")
+                return Credentials.from_service_account_info(creds_data, scopes=SCOPES)
         except Exception as e:
-            app.logger.warning(f"Failed to parse GOOGLE_CREDENTIALS_JSON: {e}")
+            app.logger.error(f"Failed to parse GOOGLE_CREDENTIALS_JSON: {e}", exc_info=True)
 
     # 2. Check base64 encoded JSON string from environment variable
     creds_b64 = os.getenv("GOOGLE_CREDENTIALS_BASE64")
-    if creds_b64 and creds_b64.strip():
+    if creds_b64 and str(creds_b64).strip():
         try:
-            decoded = base64.b64decode(creds_b64).decode("utf-8")
+            decoded = base64.b64decode(str(creds_b64).strip()).decode("utf-8")
             creds_data = json.loads(decoded)
-            return Credentials.from_service_account_info(creds_data, scopes=SCOPES)
+            if isinstance(creds_data, str):
+                creds_data = json.loads(creds_data)
+            if isinstance(creds_data, dict):
+                if "private_key" in creds_data and isinstance(creds_data["private_key"], str):
+                    if "\\n" in creds_data["private_key"]:
+                        creds_data["private_key"] = creds_data["private_key"].replace("\\n", "\n")
+                return Credentials.from_service_account_info(creds_data, scopes=SCOPES)
         except Exception as e:
-            app.logger.warning(f"Failed to parse GOOGLE_CREDENTIALS_BASE64: {e}")
+            app.logger.error(f"Failed to parse GOOGLE_CREDENTIALS_BASE64: {e}", exc_info=True)
 
     # 3. Check Render secret file path or explicit file paths
     possible_paths = [
         os.getenv("GOOGLE_CREDENTIALS_FILE"),
         "/etc/secrets/credentials.json",
-        os.path.join(script_dir, CREDENTIALS_FILE),
         os.path.join(os.getcwd(), CREDENTIALS_FILE),
-        os.path.join(os.getcwd(), "Registation_finder", "backend", CREDENTIALS_FILE),
+        os.path.join(script_dir, CREDENTIALS_FILE),
+        os.path.join(os.getcwd(), "backend", CREDENTIALS_FILE),
         CREDENTIALS_FILE
     ]
 
