@@ -23,6 +23,8 @@ load_dotenv()
 # Determine frontend directory reliably
 script_dir = os.path.dirname(os.path.abspath(__file__))
 frontend_candidates = [
+    os.path.abspath(os.path.join(os.getcwd(), "public")),
+    os.path.abspath(os.path.join(script_dir, "..", "..", "public")),
     os.path.abspath(os.path.join(script_dir, "..", "frontend")),
     os.path.abspath(os.path.join(script_dir, "frontend")),
     os.path.abspath(os.path.join(os.getcwd(), "Registation_finder", "frontend")),
@@ -36,7 +38,7 @@ for candidate in frontend_candidates:
         FRONTEND_DIR = os.path.abspath(candidate)
         break
 
-app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="")
+app = Flask(__name__, static_folder=None)
 
 # Enable CORS for all API routes
 CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -212,11 +214,33 @@ def fetch_sheet_data():
 # API ROUTES
 # =============================================================================
 
-@app.route("/", methods=["GET"])
-def index():
-    """Serve frontend index.html or health check status."""
-    if FRONTEND_DIR and os.path.exists(os.path.join(FRONTEND_DIR, "index.html")):
-        return send_from_directory(FRONTEND_DIR, "index.html")
+@app.route("/", defaults={"path": ""}, methods=["GET"], strict_slashes=False)
+@app.route("/<path:path>", methods=["GET"], strict_slashes=False)
+def serve_frontend(path):
+    """Serve frontend index.html and static files, with graceful fallback."""
+    # Never intercept known API and health check paths
+    if (
+        path.startswith("api/")
+        or path == "api"
+        or path.startswith("health")
+        or path.startswith("student")
+        or path.startswith("refresh-cache")
+    ):
+        return jsonify({"success": False, "message": "API endpoint not found"}), 404
+
+    if FRONTEND_DIR:
+        # Strip potential folder prefixes in case proxy passed full path
+        clean_path = (
+            path.replace("Registation_finder/frontend", "")
+            .replace("frontend", "")
+            .strip("/")
+        )
+        if clean_path and os.path.exists(os.path.join(FRONTEND_DIR, clean_path)) and os.path.isfile(os.path.join(FRONTEND_DIR, clean_path)):
+            return send_from_directory(FRONTEND_DIR, clean_path)
+
+        if os.path.exists(os.path.join(FRONTEND_DIR, "index.html")):
+            return send_from_directory(FRONTEND_DIR, "index.html")
+
     return jsonify({
         "success": True,
         "message": "Student Registration Search Portal API is active.",
