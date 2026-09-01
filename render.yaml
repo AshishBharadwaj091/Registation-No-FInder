@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: lpu-registration-finder
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn wsgi:app
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: SPREADSHEET_ID
+        sync: false
+      - key: SHEET_NAME
+        value: Sheet1
+      - key: GOOGLE_CREDENTIALS_JSON
+        sync: false

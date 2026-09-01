@@ -9,6 +9,8 @@ Searches student records in a private Google Sheet by student NAME (case-insensi
 import os
 import time
 import re
+import json
+import base64
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -18,14 +20,15 @@ from google.oauth2.service_account import Credentials
 # Load environment variables from .env
 load_dotenv()
 
-# Determine frontend directory
+# Determine frontend directory reliably
 script_dir = os.path.dirname(os.path.abspath(__file__))
 frontend_candidates = [
-    os.path.join(script_dir, "..", "frontend"),
-    os.path.join(script_dir, "frontend"),
-    os.path.abspath(os.path.join(script_dir, "..", "..", "frontend")),
+    os.path.abspath(os.path.join(script_dir, "..", "frontend")),
+    os.path.abspath(os.path.join(script_dir, "frontend")),
+    os.path.abspath(os.path.join(os.getcwd(), "Registation_finder", "frontend")),
     os.path.abspath(os.path.join(os.getcwd(), "frontend")),
-    os.path.abspath(os.path.join(os.getcwd(), "student-result-portal", "frontend"))
+    os.path.abspath(os.path.join(os.getcwd(), "student-result-portal", "frontend")),
+    os.path.abspath(os.path.join(script_dir, "..", "..", "frontend"))
 ]
 FRONTEND_DIR = None
 for candidate in frontend_candidates:
@@ -66,21 +69,46 @@ def extract_sheet_id(sheet_input):
     return re.sub(r"\s+", "", sheet_input)
 
 
-def get_credentials_path():
-    """Locate the credentials.json file securely."""
-    creds_path = CREDENTIALS_FILE
-    if os.path.isabs(creds_path) and os.path.exists(creds_path):
-        return creds_path
+def get_google_credentials():
+    """
+    Locate and load Google Service Account Credentials from environment variables
+    (e.g., GOOGLE_CREDENTIALS_JSON for Render/Heroku) or local credentials.json file.
+    """
+    # 1. Check raw JSON string from environment variable (Best for Render/Cloud)
+    creds_json = os.getenv("GOOGLE_CREDENTIALS_JSON") or os.getenv("GOOGLE_CREDENTIALS")
+    if creds_json and creds_json.strip():
+        try:
+            creds_data = json.loads(creds_json)
+            return Credentials.from_service_account_info(creds_data, scopes=SCOPES)
+        except Exception as e:
+            app.logger.warning(f"Failed to parse GOOGLE_CREDENTIALS_JSON: {e}")
 
-    # Check relative to backend script directory
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    candidate = os.path.join(script_dir, creds_path)
-    if os.path.exists(candidate):
-        return candidate
+    # 2. Check base64 encoded JSON string from environment variable
+    creds_b64 = os.getenv("GOOGLE_CREDENTIALS_BASE64")
+    if creds_b64 and creds_b64.strip():
+        try:
+            decoded = base64.b64decode(creds_b64).decode("utf-8")
+            creds_data = json.loads(decoded)
+            return Credentials.from_service_account_info(creds_data, scopes=SCOPES)
+        except Exception as e:
+            app.logger.warning(f"Failed to parse GOOGLE_CREDENTIALS_BASE64: {e}")
 
-    # Check current working directory
-    if os.path.exists(creds_path):
-        return os.path.abspath(creds_path)
+    # 3. Check Render secret file path or explicit file paths
+    possible_paths = [
+        os.getenv("GOOGLE_CREDENTIALS_FILE"),
+        "/etc/secrets/credentials.json",
+        os.path.join(script_dir, CREDENTIALS_FILE),
+        os.path.join(os.getcwd(), CREDENTIALS_FILE),
+        os.path.join(os.getcwd(), "Registation_finder", "backend", CREDENTIALS_FILE),
+        CREDENTIALS_FILE
+    ]
+
+    for path in possible_paths:
+        if path and os.path.exists(path):
+            try:
+                return Credentials.from_service_account_file(path, scopes=SCOPES)
+            except Exception as e:
+                app.logger.warning(f"Failed to load credentials from file {path}: {e}")
 
     return None
 
@@ -97,16 +125,18 @@ def fetch_sheet_data():
     if CACHE["data"] is not None and (current_time - CACHE["last_fetched"] < CACHE["cache_duration_seconds"]):
         return CACHE["data"]
 
-    creds_path = get_credentials_path()
-    if not creds_path:
-        raise FileNotFoundError(f"Credentials file '{CREDENTIALS_FILE}' was not found.")
+    creds = get_google_credentials()
+    if not creds:
+        raise FileNotFoundError(
+            f"Google Credentials not found. Please set GOOGLE_CREDENTIALS_JSON in environment variables "
+            f"or provide a credentials file."
+        )
 
     clean_sheet_id = extract_sheet_id(SPREADSHEET_ID)
     if not clean_sheet_id:
-        raise ValueError("SPREADSHEET_ID is not configured in .env.")
+        raise ValueError("SPREADSHEET_ID is not configured in environment.")
 
     # Authenticate with Google Sheets using read-only scope
-    creds = Credentials.from_service_account_file(creds_path, scopes=SCOPES)
     client = gspread.authorize(creds)
 
     last_exception = None
@@ -317,15 +347,32 @@ def refresh_cache():
         }), 500
 
 
+@app.route("/health", methods=["GET"])
+@app.route("/healthz", methods=["GET"])
+@app.route("/api/health", methods=["GET"])
+def health_check():
+    """Health check endpoint for Render and monitoring tools."""
+    return jsonify({
+        "status": "healthy",
+        "service": "student-registration-finder",
+        "timestamp": int(time.time()),
+        "sheet_configured": bool(SPREADSHEET_ID)
+    }), 200
+
+
 # =============================================================================
-# APPLICATION ENTRYPOINT
+# APPLICATION ENTRYPOINT (For local development)
 # =============================================================================
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
-    host = os.getenv("HOST", "127.0.0.1")
-    debug_mode = os.getenv("FLASK_DEBUG", "True").lower() in ("true", "1", "yes")
+    # If running on Render or other container, bind to 0.0.0.0, else 127.0.0.1 for local
+    default_host = "0.0.0.0" if os.getenv("PORT") else "127.0.0.1"
+    host = os.getenv("HOST", default_host)
+    debug_mode = os.getenv("FLASK_DEBUG", "False").lower() in ("true", "1", "yes")
 
     print(f"[*] Starting Student Search Backend on http://{host}:{port}")
     print(f"[*] Google Sheet ID: {extract_sheet_id(SPREADSHEET_ID)} (Tab: {SHEET_NAME})")
+    print(f"[*] Health Check: http://{host}:{port}/health")
     print(f"[*] Endpoint: http://{host}:{port}/api/student?query=<student_name>")
     app.run(host=host, port=port, debug=debug_mode)
+

@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Student Registration Search Portal",
   "scripts": {
-    "dev": "cd student-result-portal/backend && .\\venv\\Scripts\\python.exe app.py",
-    "start": "cd student-result-portal/backend && .\\venv\\Scripts\\python.exe app.py"
+    "dev": "python app.py",
+    "start": "gunicorn wsgi:app"
   },
   "keywords": ["student", "search", "portal"],
   "author": "",
